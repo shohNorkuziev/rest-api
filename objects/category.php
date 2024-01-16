@@ -23,6 +23,7 @@ class Category
         $stmt->execute();
         return $stmt;
     }
+
     function create()
     {
         $query = "INSERT into
@@ -44,10 +45,11 @@ class Category
         } 
         return false;
     }
+
     function readOne()
     {
-        $query = "SELECT id, name, description, created FROM ". $this->table_name .
-         "WHERE id= ? LIMIT 0,1";
+        $query = "SELECT * FROM ". $this->table_name .
+         " WHERE id= ? LIMIT 0,1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
         $stmt->execute();
@@ -56,5 +58,44 @@ class Category
         $this->name = $row["name"];
         $this->description = $row["description"];
         return $stmt;
+    }
+
+    function update()
+    {
+        $query = "UPDATE
+        " . $this->table_name . "
+        SET
+        name=:name,
+        description=:description 
+        WHERE id =:id
+        ";
+        
+        $stmt = $this->conn->prepare($query);
+        $this->name = htmlspecialchars(strip_tags($this->name));
+        $this->description = htmlspecialchars(strip_tags($this->description));
+
+        $stmt->bindParam(":name", $this->name);
+        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":id", $this->id);
+        if ($stmt->execute()) {
+            return true; 
+        } 
+        return false;
+    }
+
+    function delete()
+    {
+        $query = "DELETE FROM
+        " . $this->table_name . "
+        WHERE id =:id
+        ";
+        
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam(":id", $this->id);
+        if ($stmt->execute()) {
+            return true; 
+        } 
+        return false;
     }
 }

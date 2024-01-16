@@ -11,10 +11,8 @@ $db =$database->getConnection();
 $category = new Category($db);
 
 $data = json_decode(file_get_contents("php://input"));
-if(
-    !empty($data->name) &&
-    !empty($data->description)
-    ){
+if(!empty($data->name) && !empty($data->description))
+{
         $category->name = $data->name;
         $category->description = $data->description;
         $category->created = date("Y-m-d H:i:s");
