@@ -1,21 +1,27 @@
 <?php 
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=utf-8");
+header("Access-Control-Allow-Headers: access");
+header("Access-Control-Allow-Methods: GET");
+header("Content-Type: application/json");
 
 include_once "../config/database.php";
+include_once "../config/core.php";
 include_once "../objects/product.php";
+include_once "../shared/utilities.php";
+
+$utilities = new Utilities();
 
 $database = new Database();
 $db =$database->getConnection();
-
 $product = new Product($db);
 
-$stmt = $product->read();
+$stmt = $product->readPaging($from_record_num, $records_per_page);
 $num = $stmt->rowCount();
 
-if($num > 0){
+if ($num > 0) {
     $products_arr = array();
     $products_arr["records"] = array();
+    $products_arr["paging"] = array();
 
     while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
         extract($row);
@@ -29,6 +35,12 @@ if($num > 0){
         );
        array_push($products_arr["records"], $product_item);
     }
+
+    $total_rows = $product->count();
+    $page_url = "{$home_url}product/read_paging.php?";
+    $paging = $utilities->getPaging($page, $total_rows, $records_per_page, $page_url);
+    $products_arr["paging"] = $paging;
+
     echo json_encode($products_arr);
     http_response_code(200);
 }else{

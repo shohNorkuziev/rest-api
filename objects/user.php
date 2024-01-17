@@ -36,15 +36,56 @@ class User
     {
         $query = "INSERT INTO 
         " . $this->table_name . "
-        SET firstname:firstname, 
-        lastname:lastname, 
-        email:email, 
-        password:password, 
-        created:created
+        SET firstname=:firstname,  
+        lastname=:lastname, 
+        email=:email, 
+        password=:password, 
+        created=:created
         ";
 
         $stmt = $this->conn->prepare($query);
 
-        $this->firstname = htmlspecialchars(strip_tags($this->name));
+        $this->firstname = htmlspecialchars(strip_tags($this->firstname));
+        $this->lastname = htmlspecialchars(strip_tags($this->lastname));
+        $this->email = htmlspecialchars(strip_tags($this->email));
+        $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
+
+        $stmt->bindParam(":firstname", $this->firstname);
+        $stmt->bindParam(":lastname", $this->lastname);
+        $stmt->bindParam(":email", $this->email);
+        $stmt->bindParam(":password", $password_hash);
+        $stmt->bindParam(":created", $this->created);
+
+        if ($stmt->execute()) {
+            return true;
+        } return false;
+    }
+
+    function update()
+    {
+        $query = "UPDATE
+        " . $this->table_name . "
+        SET
+        firstname=:firstname,
+        lastname=:lastname,
+        email=:email 
+        WHERE id =:id
+        ";
+
+        $stmt = $this->conn->prepare($query);
+
+        $this->firstname = htmlspecialchars(strip_tags($this->firstname));
+        $this->lastname = htmlspecialchars(strip_tags($this->lastname));
+        $this->email = htmlspecialchars(strip_tags($this->email));
+
+        $stmt->bindParam(":firstname", $this->firstname);
+        $stmt->bindParam(":lastname", $this->lastname);
+        $stmt->bindParam(":email", $this->email);
+        $stmt->bindParam(":id", $this->id);
+
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
 }

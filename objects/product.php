@@ -149,4 +149,34 @@ class Product
         $stmt->execute();
         return $stmt;
     }
+
+    function readPaging($from_record_num, $records_per_pages)
+    {
+        $query = "SELECT 
+        c.name as category_name, p.id, p.name, p.description, p.price, p.category_id, p.created
+        FROM " . $this->table_name . " p 
+        LEFT JOIN
+        categories c 
+        ON p.category_id = c.id
+        ORDER BY
+        p.created DESC 
+        LIMIT ?, ?";
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam(1, $from_record_num, PDO::PARAM_INT);
+        $stmt->bindParam(2, $records_per_pages, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    function count()
+    {
+        $query = "SELECT COUNT(*) as total_rows fROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row["total_rows"];
+    }
 }
