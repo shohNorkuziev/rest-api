@@ -68,7 +68,8 @@ class User
         SET
         firstname=:firstname,
         lastname=:lastname,
-        email=:email 
+        email=:email, 
+        password=:password
         WHERE id =:id
         ";
 
@@ -78,7 +79,10 @@ class User
         $this->lastname = htmlspecialchars(strip_tags($this->lastname));
         $this->email = htmlspecialchars(strip_tags($this->email));
 
+        $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
+
         $stmt->bindParam(":firstname", $this->firstname);
+        $stmt->bindParam(":password", $password_hash);
         $stmt->bindParam(":lastname", $this->lastname);
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":id", $this->id);
@@ -101,4 +105,33 @@ class User
         }
         return false;
     }
-}
+
+    function emailExists() {
+        $query = 'SELECT
+          u.id, u.firstname, u.lastname, u.email, u.password, u.created
+          FROM '. $this -> table_name .' u 
+          WHERE u.email = ?';
+      
+          $stmt = $this->conn->prepare($query);
+      
+          $this -> email = htmlspecialchars(strip_tags($this->email));
+          $stmt -> bindParam(1, $this -> email);
+      
+          $stmt -> execute();
+      
+          $num = $stmt -> rowCount();
+          if ($num > 0 ) {
+            $row = $stmt -> fetch(PDO::FETCH_ASSOC);
+            $this -> id = $row['id'];
+            $this -> firstname = $row['firstname'];
+            $this -> lastname = $row['lastname'];
+            $this -> password = $row['password']; 
+            
+            return true;
+          } else {
+            return false;
+          }
+            
+        }
+      }
+
