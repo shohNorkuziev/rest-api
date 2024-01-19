@@ -88,4 +88,17 @@ class User
         }
         return false;
     }
+
+    function delete()
+    {
+        $query = "DELETE FROM " . $this->table_name . " WHERE id =:id";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $this->id);
+
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
 }
